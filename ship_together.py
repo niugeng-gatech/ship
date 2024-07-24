@@ -175,6 +175,9 @@ def process_carrier(df_order, Upload_flag, date):
         else:
             # 全放到 'ups'
             df_final = df.sort_values(by=['数量', '型号', '订单时间'])
+            df_final['承运中介'] = 'pirateship'
+            df_final['承运物流'] = 'ups'
+            df_final['快递单号'] = ''
 
         return df_final
 
@@ -247,14 +250,18 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output.groupby(['型号', '数量']).size())
     print()
 
+    print('总单品:')
+    print(df_output['数量'].sum())
+    print()
+
     # print the sum of '数量' for each '承运中介' when '承运物流' = 'USPS'
     print('USPS统计:')
     print(df_output[df_output['承运物流'] == 'USPS'].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_17'
+    date = '2024_07_24'
 
-    merchant_name_list = ['DCZ', 'Crafty']
+    merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
 
     # if folder_path 'Crafty' not exist, create it 

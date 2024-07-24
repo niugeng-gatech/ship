@@ -15,24 +15,25 @@ def process_excel(input_file, date, merchant_name):
     #df_order = df_order[['型号', '订单号', '姓名', '地址1', '地址2','城市', '州', '邮编']]
     print(df_order.head())
     # read the list from file_names.txt
-    with open(f'data/{date}/Tracking/{date}_file_names.txt', 'r') as f:
-        file_names = f.read().splitlines()
-
-
-    # read each tracking file from file_names, read them as pandas dataframe, and concat them to df_order with the key 'Order ID'
     df_tracking_concat = pd.DataFrame()
-    for file_name in file_names:
-        # file_name exists
-        print(f'Reading: data/{date}/Tracking/{file_name}')
-        if not os.path.exists(f'data/{date}/Tracking/{file_name}'):
-            continue
 
-        df_tracking = pd.read_excel(f'data/{date}/Tracking/{file_name}')
-        
-        # Recipient	Company	Email	Tracking Number	Cost	Status	Error Message	Ship Date	Label Created Date	Estimated Delivery Time	Weight (oz)	Zone	Package Length	Package Width	Package Height	Tracking Status	Tracking Info	Tracking Date	Address Line 1	Address Line 2	City	State	Zipcode	Country	Carrier	Service	Order ID	Rubber Stamp 1
-        df_tracking = df_tracking[['Order ID', 'Tracking Number', 'Cost','Recipient', 'Rubber Stamp 1', 'Address Line 1', 'Address Line 2',	'City',	'State', 'Zipcode']]
-        df_tracking['承运中介'] = 'pirateship'
-        df_tracking_concat = pd.concat([df_tracking_concat, df_tracking])
+    if os.path.exists(f'data/{date}/Tracking/{date}_file_names.txt'):
+        with open(f'data/{date}/Tracking/{date}_file_names.txt', 'r') as f:
+            file_names = f.read().splitlines()
+
+        # read each tracking file from file_names, read them as pandas dataframe, and concat them to df_order with the key 'Order ID'
+        for file_name in file_names:
+            # file_name exists
+            print(f'Reading: data/{date}/Tracking/{file_name}')
+            if not os.path.exists(f'data/{date}/Tracking/{file_name}'):
+                continue
+
+            df_tracking = pd.read_excel(f'data/{date}/Tracking/{file_name}')
+            
+            # Recipient	Company	Email	Tracking Number	Cost	Status	Error Message	Ship Date	Label Created Date	Estimated Delivery Time	Weight (oz)	Zone	Package Length	Package Width	Package Height	Tracking Status	Tracking Info	Tracking Date	Address Line 1	Address Line 2	City	State	Zipcode	Country	Carrier	Service	Order ID	Rubber Stamp 1
+            df_tracking = df_tracking[['Order ID', 'Tracking Number', 'Cost','Recipient', 'Rubber Stamp 1', 'Address Line 1', 'Address Line 2',	'City',	'State', 'Zipcode']]
+            df_tracking['承运中介'] = 'pirateship'
+            df_tracking_concat = pd.concat([df_tracking_concat, df_tracking])
     if os.path.exists(f'data/{date}/Tracking/{date}_water_tracking.xls'):
         workbook = xlrd.open_workbook(f'data/{date}/Tracking/{date}_water_tracking.xls', ignore_workbook_corruption=True)
         df_water_tracking = pd.read_excel(workbook)
@@ -61,7 +62,7 @@ def process_excel(input_file, date, merchant_name):
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_07_17'
+    date = '2024_07_24'
 
     merchant_name_list = ['DCZ', 'Crafty']
 
