@@ -146,7 +146,18 @@ def process_carrier(df_order, Upload_flag, date):
 
     # 分支2：处理正规单
     def check_and_move_rows(df):
-        zipcode_column_first_5_digits = df['邮编'].astype(str).str[:5]
+        usps_priority_rows = df[(df['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD'])) & (df['州'].isin(['AK', 'PR', 'HI']))]
+        if not usps_priority_rows.empty:
+            # 符合条件的行放到 'usps'
+            usps_priority_rows_sorted = usps_priority_rows.sort_values(by=['数量', '型号', '订单时间'])
+            usps_priority_rows_sorted['承运中介'] = 'pirateship'
+            usps_priority_rows_sorted['承运物流'] = 'USPS Priority'
+            usps_priority_rows_sorted['快递单号'] = ''
+        else:
+            usps_priority_rows_sorted = pd.DataFrame()
+
+        df_remain = df[~df.index.isin(usps_priority_rows.index)]
+        zipcode_column_first_5_digits = df_remain['邮编'].astype(str).str[:5]
 
         # read UPS_Remote_zipcode.csv as string
         df_UPS_Remote_zipcode = pd.read_csv('UPS_Remote_zipcode.csv', dtype={'zipcode': str})
@@ -156,7 +167,7 @@ def process_carrier(df_order, Upload_flag, date):
         df_zipcode = pd.concat([df_UPS_Remote_zipcode, df_UPS_DAS_zipcode])
         # print(df_zipcode.head())
 
-        usps_rows = df[(zipcode_column_first_5_digits.isin(df_zipcode['zipcode'].astype(str).str[:5].unique())) | (df['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD']))]
+        usps_rows = df_remain[(zipcode_column_first_5_digits.isin(df_zipcode['zipcode'].astype(str).str[:5].unique())) | (df_remain['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD']))]
         if not usps_rows.empty:
             # 符合条件的行放到 'usps'
             usps_rows_sorted = usps_rows.sort_values(by=['数量', '型号', '订单时间'])
@@ -165,20 +176,21 @@ def process_carrier(df_order, Upload_flag, date):
             usps_rows_sorted['快递单号'] = ''
 
             # 剩余数据放到 'ups'
-            ups_rows_sorted = df[~df.index.isin(usps_rows.index)].copy()
+            ups_rows_sorted = df_remain[~df_remain.index.isin(usps_rows.index)].copy()
             ups_rows_sorted['承运中介'] = 'pirateship'
             ups_rows_sorted['承运物流'] = 'ups'
             ups_rows_sorted['快递单号'] = ''
             ups_rows_sorted = ups_rows_sorted.sort_values(by=['数量', '型号', '订单时间'])
 
-            df_final = pd.concat([usps_rows_sorted, ups_rows_sorted])
+            df_final = pd.concat([usps_priority_rows_sorted, usps_rows_sorted, ups_rows_sorted])
         else:
             # 全放到 'ups'
-            df_final = df.sort_values(by=['数量', '型号', '订单时间'])
-            df_final['承运中介'] = 'pirateship'
-            df_final['承运物流'] = 'ups'
-            df_final['快递单号'] = ''
+            usps_rows_sorted = df_remain.sort_values(by=['数量', '型号', '订单时间'])
+            usps_rows_sorted['承运中介'] = 'pirateship'
+            usps_rows_sorted['承运物流'] = 'ups'
+            usps_rows_sorted['快递单号'] = ''
 
+            df_final = pd.concat([usps_priority_rows_sorted, ups_rows_sorted])
         return df_final
 
     if not df_remain.empty:
@@ -256,10 +268,10 @@ def process_carrier(df_order, Upload_flag, date):
 
     # print the sum of '数量' for each '承运中介' when '承运物流' = 'USPS'
     print('USPS统计:')
-    print(df_output[df_output['承运物流'] == 'USPS'].groupby('承运中介')[['数量']].sum())
+    print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_24'
+    date = '2024_07_24b'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
