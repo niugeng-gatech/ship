@@ -39,7 +39,7 @@ def process_excel(input_file, date, merchant_name):
         df_water_tracking = pd.read_excel(workbook)
         df_water_tracking = df_water_tracking[['订单编号', '产品SKU', '快递单号']]
         df_water_tracking.rename(columns={'订单编号':'Order ID', '产品SKU': 'Rubber Stamp 1', '快递单号': 'Tracking Number'}, inplace=True)
-        df_water_tracking['Cost'] = 3.8
+        df_water_tracking['Cost'] = 3.0
         df_water_tracking['Recipient'] = ''
         df_water_tracking['Address Line 1'] = ''
         df_water_tracking['Address Line 2'] = ''
@@ -62,7 +62,7 @@ def process_excel(input_file, date, merchant_name):
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_07_24'
+    date = '2024_07_26'
 
     merchant_name_list = ['DCZ', 'Crafty']
 

@@ -271,7 +271,7 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_24b'
+    date = '2024_07_26'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
