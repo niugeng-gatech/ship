@@ -13,6 +13,8 @@ def process_excel(input_file, date, merchant_name):
 
     df_order.dropna(how='all', inplace=True)
     #df_order = df_order[['型号', '订单号', '姓名', '地址1', '地址2','城市', '州', '邮编']]
+    df_order.loc[df_order['型号'] == 'JHH-OG06白', '型号'] = 'JHH-OG06 White'
+    df_order.loc[df_order['型号'] == 'JHH-OG06灰', '型号'] = 'JHH-OG06 Grey'
     print(df_order.head())
     # read the list from file_names.txt
     df_tracking_concat = pd.DataFrame()
@@ -49,6 +51,7 @@ def process_excel(input_file, date, merchant_name):
         df_water_tracking['承运中介'] = '水'
         #print(df_water_tracking.head())
         df_tracking_concat = pd.concat([df_tracking_concat, df_water_tracking])
+        print(df_tracking_concat.head())
     
     if df_tracking_concat.empty:
         print('No tracking file found!')
@@ -62,7 +65,7 @@ def process_excel(input_file, date, merchant_name):
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_07_26'
+    date = '2024_07_29'
 
     merchant_name_list = ['DCZ', 'Crafty']
 

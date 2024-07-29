@@ -178,7 +178,7 @@ def process_carrier(df_order, Upload_flag, date):
             # 剩余数据放到 'ups'
             ups_rows_sorted = df_remain[~df_remain.index.isin(usps_rows.index)].copy()
             ups_rows_sorted['承运中介'] = 'pirateship'
-            ups_rows_sorted['承运物流'] = 'ups'
+            ups_rows_sorted['承运物流'] = 'USPS'
             ups_rows_sorted['快递单号'] = ''
             ups_rows_sorted = ups_rows_sorted.sort_values(by=['数量', '型号', '订单时间'])
 
@@ -271,7 +271,7 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_26'
+    date = '2024_07_29'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
