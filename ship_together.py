@@ -216,6 +216,7 @@ def process_carrier(df_order, Upload_flag, date):
         df_pirateship['店铺_renamed'] = df_pirateship['店铺']
         df_pirateship.loc[df_pirateship['店铺'].str.upper().isin(['DA CHENG ZI','DACHENGZI']), '店铺_renamed'] = 'DCZ'
         df_pirateship.loc[df_pirateship['店铺'] == 'MTEHFYAF', '店铺_renamed'] = 'MTEH'
+        df_pirateship.loc[df_pirateship['店铺'] == '海恩诺', '店铺_renamed'] = 'HENN'
         df_pirateship['Rubberstamp1'] = df_pirateship['店铺_renamed'].str.upper()+' ' + df_pirateship['Order Items']
 
         df_pirateship = df_pirateship[['Email', 'Name', 'Address', 'Address Line 2', 'City','State', 'Zipcode', 'Country', 'Order ID', 'Rubberstamp1', 'Order Items', 'Pounds', 'Length', 'Width', 'Height', 'Shipping', 'merchant_name']]
@@ -271,7 +272,7 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_29'
+    date = '2024_07_30'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True

@@ -10,6 +10,8 @@ def calculate_cost(df):
 def process_excel(input_file, date, merchant_name):
     # 读取输入的Excel文件
     df_order = pd.read_excel(input_file)
+    # cast '订单号' to string
+    df_order['订单号'] = df_order['订单号'].astype(str)
 
     df_order.dropna(how='all', inplace=True)
     #df_order = df_order[['型号', '订单号', '姓名', '地址1', '地址2','城市', '州', '邮编']]
@@ -31,6 +33,7 @@ def process_excel(input_file, date, merchant_name):
                 continue
 
             df_tracking = pd.read_excel(f'data/{date}/Tracking/{file_name}')
+            df_tracking['Order ID'] = df_tracking['Order ID'].astype(str)
             
             # Recipient	Company	Email	Tracking Number	Cost	Status	Error Message	Ship Date	Label Created Date	Estimated Delivery Time	Weight (oz)	Zone	Package Length	Package Width	Package Height	Tracking Status	Tracking Info	Tracking Date	Address Line 1	Address Line 2	City	State	Zipcode	Country	Carrier	Service	Order ID	Rubber Stamp 1
             df_tracking = df_tracking[['Order ID', 'Tracking Number', 'Cost','Recipient', 'Rubber Stamp 1', 'Address Line 1', 'Address Line 2',	'City',	'State', 'Zipcode']]
@@ -42,6 +45,8 @@ def process_excel(input_file, date, merchant_name):
         df_water_tracking = df_water_tracking[['订单编号', '产品SKU', '快递单号']]
         df_water_tracking.rename(columns={'订单编号':'Order ID', '产品SKU': 'Rubber Stamp 1', '快递单号': 'Tracking Number'}, inplace=True)
         df_water_tracking['Cost'] = 3.0
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['HE-M001']), 'Cost'] = 2
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['YX2425']), 'Cost'] = 7
         df_water_tracking['Recipient'] = ''
         df_water_tracking['Address Line 1'] = ''
         df_water_tracking['Address Line 2'] = ''
@@ -65,7 +70,7 @@ def process_excel(input_file, date, merchant_name):
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_07_29'
+    date = '2024_07_30'
 
     merchant_name_list = ['DCZ', 'Crafty']
 
