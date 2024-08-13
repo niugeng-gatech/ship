@@ -65,12 +65,12 @@ def process_excel(input_file, date, merchant_name):
     
     # for merchant_name == 'DCZ' and column '型号' in ['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD'], add 0.5 to 'Cost'
     if merchant_name == 'DCZ':
-        df_order.loc[df_order['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD']), 'Cost'] += 0.5
+        df_order.loc[df_order['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD', 'MY-FYY-03-YMX']), 'Cost'] += 0.5
     # save to excel
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_07_30'
+    date = '2024_08_13'
 
     merchant_name_list = ['DCZ', 'Crafty']
 

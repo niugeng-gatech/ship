@@ -94,15 +94,17 @@ def process_carrier(df_order, Upload_flag, date):
 
     # 分支1：处理水单
     df_order_water = df_order[df_order['merchant_name'] == 'Crafty'].copy()
+    #df_order_water = pd.DataFrame()
     special_rows = pd.DataFrame()
     special_rows_sorted = pd.DataFrame()
     if not df_order_water.empty:
         # if df_order_water has the column '中介'
         if '承运中介' in df_order_water.columns:
             # 水单的特殊行
-            special_rows = df_order_water[((df_order_water['州'].isin(['FL', 'AK', 'PR', 'HI'])) & (df_order_water['型号'].isin(['XMYQSB', 'QSB-01', 'YS-10', 'YS-06'])))
-                                             | (df_order_water['型号'].isin(['HE-M001', 'JHH-OG06白', 'JHH-OG06灰'])) 
-                                             | (df_order_water['承运中介'].isin(['水']))]
+            #special_rows = df_order_water[((df_order_water['州'].isin(['FL', 'AK', 'PR', 'HI'])) & (df_order_water['型号'].isin(['XMYQSB', 'QSB-01', 'YS-10', 'YS-06'])))
+            #                                 | (df_order_water['型号'].isin(['HE-M001', 'JHH-OG06白', 'JHH-OG06灰'])) 
+            #                                 | (df_order_water['承运中介'].isin(['水']))]
+            special_rows = df_order_water[(df_order_water['承运中介'].isin(['水']))]
         else:
             special_rows = df_order_water[((df_order_water['州'].isin(['FL', 'AK', 'PR', 'HI'])) & (df_order_water['型号'].isin(['XMYQSB', 'QSB-01', 'YS-10', 'YS-06']))) 
                                              | (df_order_water['型号'].isin(['HE-M001', 'JHH-OG06白', 'JHH-OG06灰']))]
@@ -151,7 +153,7 @@ def process_carrier(df_order, Upload_flag, date):
             # 符合条件的行放到 'usps'
             usps_priority_rows_sorted = usps_priority_rows.sort_values(by=['数量', '型号', '订单时间'])
             usps_priority_rows_sorted['承运中介'] = 'pirateship'
-            usps_priority_rows_sorted['承运物流'] = 'USPS Priority'
+            usps_priority_rows_sorted['承运物流'] = 'USPS'
             usps_priority_rows_sorted['快递单号'] = ''
         else:
             usps_priority_rows_sorted = pd.DataFrame()
@@ -217,6 +219,7 @@ def process_carrier(df_order, Upload_flag, date):
         df_pirateship.loc[df_pirateship['店铺'].str.upper().isin(['DA CHENG ZI','DACHENGZI']), '店铺_renamed'] = 'DCZ'
         df_pirateship.loc[df_pirateship['店铺'] == 'MTEHFYAF', '店铺_renamed'] = 'MTEH'
         df_pirateship.loc[df_pirateship['店铺'] == '海恩诺', '店铺_renamed'] = 'HENN'
+        df_pirateship.loc[df_pirateship['店铺'] == '独立站', '店铺_renamed'] = 'DLZ'
         df_pirateship['Rubberstamp1'] = df_pirateship['店铺_renamed'].str.upper()+' ' + df_pirateship['Order Items']
 
         df_pirateship = df_pirateship[['Email', 'Name', 'Address', 'Address Line 2', 'City','State', 'Zipcode', 'Country', 'Order ID', 'Rubberstamp1', 'Order Items', 'Pounds', 'Length', 'Width', 'Height', 'Shipping', 'merchant_name']]
@@ -272,7 +275,7 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_07_30'
+    date = '2024_08_13'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
