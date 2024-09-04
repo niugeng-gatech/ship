@@ -46,7 +46,7 @@ def process_excel(input_file, date, merchant_name):
         df_water_tracking.rename(columns={'订单编号':'Order ID', '产品SKU': 'Rubber Stamp 1', '快递单号': 'Tracking Number'}, inplace=True)
         df_water_tracking['Cost'] = 3.0
         df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['HE-M001']), 'Cost'] = 2
-        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['YX2425']), 'Cost'] = 7
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['YX2425']), 'Cost'] = 4.8
         df_water_tracking['Recipient'] = ''
         df_water_tracking['Address Line 1'] = ''
         df_water_tracking['Address Line 2'] = ''
@@ -70,7 +70,7 @@ def process_excel(input_file, date, merchant_name):
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_08_13'
+    date = '2024_09_04'
 
     merchant_name_list = ['DCZ', 'Crafty']
 

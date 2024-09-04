@@ -61,6 +61,7 @@ def check_address(df):
 
     # add a new column '地址1_POBOX' to store the '地址1' with removing space in the value
     df['地址1_POBOX'] = df['地址1_clean'].str.replace(' ', '', regex=True)
+    #print(df)
     df = df[~df.index.isin(df[df['地址1_POBOX'].str.contains('POBOX', case=False)].index)]
 
     # if the row with '地址1' doesn't begin with a number in the value, then print that row
@@ -201,7 +202,9 @@ def process_carrier(df_order, Upload_flag, date):
         df_pirateship = df_remain_sorted.copy()
         # rename columns consuming a dictionary: 姓名: Name, 地址1: Address, 地址2: Address2, 城市: City, 州: Abbreviation, 邮编: ZIP/Postal code, 订单号: order num, 电话: phone num1, 数量: Quantity, 型号: Item-sku, 订单时间: OrderTime, 承运中介: Carrier, 承运物流: Shipping, 快递单号: Tracking
         df_pirateship.rename(columns={'姓名': 'Name', '地址1': 'Address', '地址2': 'Address Line 2', '城市': 'City', '州': 'State', '邮编': 'Zipcode', '订单号': 'Order ID', '数量': 'Quantity', '型号': 'Order Items', '订单时间': 'OrderTime', '承运中介': 'Carrier', '承运物流': 'Shipping', '快递单号': 'Tracking'}, inplace=True)
+        # for State in ['QC', 'ON', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'YT', 'NU'], set 'Country' = 'CA'. Otherwise, set 'Country' = 'US'
         df_pirateship['Country'] = 'US'
+        df_pirateship.loc[df_pirateship['State'].isin(['QC', 'ON', 'NS', 'NB', 'MB', 'BC', 'PE', 'SK', 'AB', 'NL', 'NT', 'YT', 'NU']), 'Country'] = 'CA'
         df_pirateship['Company'] = ''
         df_pirateship['Email'] = ''
         df_pirateship['Phone'] = ''
@@ -227,11 +230,17 @@ def process_carrier(df_order, Upload_flag, date):
         if Upload_flag:
             # create a list to save the file names
             file_names = []
-            # save df_pirateship seperately to xls based on each pair of 'Order Items' and '承运物流'
-            for shipping_method, df_group in df_pirateship.groupby('Shipping'):
-                for order_items, df_order_items in df_group.groupby('Order Items'):
-                    df_order_items.to_excel(f'data/{date}/Upload/{date}_{order_items}_{shipping_method}.xlsx', index=False)
-                    file_names.append(f'{date}_{order_items}_{shipping_method} - Tracking Numbers.xlsx')
+            # save df_pirateship seperately to xls based on each pair of 'Country' ,'Order Items' and '承运物流'
+            #for shipping_method, df_group in df_pirateship.groupby('Shipping'):
+            #    for order_items, df_order_items in df_group.groupby('Order Items'):
+            #        df_order_items.to_excel(f'data/{date}/Upload/{date}_{order_items}_{shipping_method}.xlsx', index=False)
+            #        file_names.append(f'{date}_{order_items}_{shipping_method} - Tracking Numbers.xlsx')
+            for country, df_country in df_pirateship.groupby('Country'):
+                for shipping_method, df_group in df_country.groupby('Shipping'):
+                    for order_items, df_order_items in df_group.groupby('Order Items'):
+                        df_order_items.to_excel(f'data/{date}/Upload/{date}_{order_items}_{shipping_method}_{country}.xlsx', index=False)
+                        file_names.append(f'{date}_{order_items}_{shipping_method}_{country} - Tracking Numbers.xlsx')
+
 
             # save the file names to a txt file for append tracking number in the future
             with open(f'data/{date}/Tracking/{date}_file_names.txt', 'w') as f:
@@ -275,7 +284,7 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_08_13'
+    date = '2024_09_04'
 
     merchant_name_list = ['DCZ', 'Crafty'] 
     Upload_flag = True
@@ -286,7 +295,7 @@ def main():
         os.makedirs(f'data/{date}')
         exit()
 
-    df_order = pd.DataFrame()
+    df_order = pd.DataFrame() 
     for merchant_name in merchant_name_list:
         if os.path.exists(f'data/{date}/{date}_{merchant_name}.xlsx'):
             print(f'found {date}_{merchant_name}.xlsx')
