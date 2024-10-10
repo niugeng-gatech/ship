@@ -45,8 +45,9 @@ def process_excel(input_file, date, merchant_name):
         df_water_tracking = df_water_tracking[['订单编号', '产品SKU', '快递单号']]
         df_water_tracking.rename(columns={'订单编号':'Order ID', '产品SKU': 'Rubber Stamp 1', '快递单号': 'Tracking Number'}, inplace=True)
         df_water_tracking['Cost'] = 3.0
-        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['HE-M001']), 'Cost'] = 2
-        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['YX2425']), 'Cost'] = 4.8
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['HE-M001']), 'Cost'] = 1.5
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].str.contains('HL-01'), 'Cost'] = 1.5
+        df_water_tracking.loc[df_water_tracking['Rubber Stamp 1'].isin(['YX2425','YS-06 x6']), 'Cost'] = 4.8
         df_water_tracking['Recipient'] = ''
         df_water_tracking['Address Line 1'] = ''
         df_water_tracking['Address Line 2'] = ''
@@ -63,14 +64,15 @@ def process_excel(input_file, date, merchant_name):
     else:
         df_order = df_order.merge(df_tracking_concat, how='left', left_on='订单号', right_on='Order ID')
     
-    # for merchant_name == 'DCZ' and column '型号' in ['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD'], add 0.5 to 'Cost'
+    # for merchant_name == 'DCZ' and column '型号' contains 'MY-FYY-01', add 0.5 to 'Cost'
     if merchant_name == 'DCZ':
-        df_order.loc[df_order['型号'].isin(['MY-FYY-01', 'MY-FYY-03', 'MY-FYY-03-PDD', 'MY-FYY-03-YMX']), 'Cost'] += 0.5
+        df_order.loc[df_order['型号'].str.contains('MY-FYY'), 'Cost'] = df_order['Cost'] + 0.5*df_order['数量']
+        df_order.loc[df_order['型号'].str.contains('QYJ'), 'Cost'] = df_order['Cost'] + 0.5*df_order['数量']
     # save to excel
     df_order.to_excel(f'data/{date}/Tracking/{date}_{merchant_name}_订单_with_tracking.xlsx', index=False)
 
 def main(): 
-    date = '2024_09_04'
+    date = '2024_10_09'
 
     merchant_name_list = ['DCZ', 'Crafty']
 

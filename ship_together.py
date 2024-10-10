@@ -284,13 +284,13 @@ def process_carrier(df_order, Upload_flag, date):
     print(df_output[df_output['承运物流'].isin(['USPS', 'USPS Priority']) ].groupby('承运中介')[['数量']].sum())
 
 def main(): 
-    date = '2024_09_04'
+    date = '2024_10_09'
 
-    merchant_name_list = ['DCZ', 'Crafty'] 
+    merchant_name_list = ['DCZ', 'Crafty']
     Upload_flag = True
 
     # if folder_path 'Crafty' not exist, create it 
-    if not os.path.exists(f'data/{date}'):
+    if not os.path.exists(f'data/{date}'): 
         print(f'Error: data/{date} does not exist!')
         os.makedirs(f'data/{date}')
         exit()
